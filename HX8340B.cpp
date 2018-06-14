@@ -14,8 +14,6 @@
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 
-#include <avr/pgmspace.h>
-#include <util/delay.h>
 #include <stdlib.h>
 #include <SPI.h>
 
@@ -23,24 +21,19 @@
 #include "HX8340B.h"
 
 // Constructor when using software SPI.  All output pins are configurable.
-HX8340B::HX8340B(int8_t SID, int8_t SCLK, int8_t RST,
-   int8_t CS) : Adafruit_GFX(HX8340B_LCDWIDTH, HX8340B_LCDHEIGHT) {
-  sid   = SID;
-  sclk  = SCLK;
-  rst   = RST;
-  cs    = CS;
-  hwSPI = false;
-}
+HX8340B::HX8340B(PinName mosi, PinName miso, PinName sclk, PinName cs,
+		PinName data_ctrl, PinName backlight_ctrl, PinName reset) :
+		_spi(mosi, miso, sclk, cs), _data_command(data_ctrl)
+{
+	if(backlight_ctrl)
+	{
+		_backlight_ctrl = new mbed::PwmOut(backlight_ctrl);
+	}
 
-// Constructor when using hardware SPI.  Faster, but must use SPI pins
-// specific to each board type (e.g. 11,13 for Uno, 51,52 for Mega, etc.)
-HX8340B::HX8340B(int8_t RST, int8_t CS) :
-    Adafruit_GFX(HX8340B_LCDWIDTH, HX8340B_LCDHEIGHT) {
-  sid   = -1;
-  sclk  = -1;
-  rst   = RST;
-  cs    = CS;
-  hwSPI = true;
+	if(reset)
+	{
+		_reset = new mbed::DigitalOut(reset);
+	}
 }
 
 void HX8340B::writeCommand(uint8_t c) {

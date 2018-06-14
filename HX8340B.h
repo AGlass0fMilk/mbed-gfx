@@ -17,6 +17,7 @@
 #include "Adafruit_GFX.h"
 
 #include "drivers/DigitalOut.h"
+#include "drivers/PwmOut.h"
 #include "drivers/SPI.h"
 
 #ifndef _HX8340B_H_
@@ -110,8 +111,8 @@ class HX8340B : public Adafruit_GFX
 
 	public:
 
-		HX8340B(int8_t SID, int8_t SCLK, int8_t RST, int8_t CS);
-		HX8340B(int8_t RST, int8_t CS);
+		HX8340B(PinName mosi, PinName miso, PinName sclk, PinName cs,
+				PinName data_ctrl, PinName backlight_pwm = NULL, PinName reset = NULL);
 
 		void begin(), setWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1),
 				fillScreen(uint16_t c), pushColor(uint16_t c), drawPixel(int16_t x,
@@ -130,11 +131,14 @@ class HX8340B : public Adafruit_GFX
 		/** SPI interface for driver */
 		mbed::SPI _spi;
 
-		/** Reset control pin for driver */
-		mbed::DigitalOut _reset;
-
 		/** Data/Command pin for driver */
 		mbed::DigitalOut _data_command;
+
+		/** PWM output control for backlight brightness */
+		mbed::PwmOut* _backlight_ctrl;
+
+		/** Reset control pin for driver */
+		mbed::DigitalOut* _reset;
 };
 
 #endif //#ifndef _HX8340B_H_
